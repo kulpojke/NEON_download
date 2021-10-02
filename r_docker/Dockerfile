@@ -2,8 +2,8 @@ FROM rocker/r-base:4.1.0
 
 # install apt packages
 RUN apt-get update \
-    parallel \
     && apt install -y \
+    parallel \
     software-properties-common \
     apt-utils \
     libgdal-dev \
