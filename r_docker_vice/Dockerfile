@@ -26,14 +26,14 @@ RUN R -e   "install.packages('BiocManager'); \
     install.packages('rgdal')"
 
 # copy files
-COPY file.sh /
+COPY vice_file.sh /
 COPY file.R /
 
 # make data  
 WORKDIR /root/work
 
 
-ENTRYPOINT ["/file.sh"]
+ENTRYPOINT ["/vice_file.sh"]
 
 
 

@@ -7,6 +7,7 @@ site      <- args[1]
 startdate <- args[2]
 enddate   <- args[3]
 api_token <- args[4]
+savepath  <- args[5]
 
 # do this wierd R thing
 options(stringsAsFactors=F)
@@ -25,7 +26,6 @@ soilTID   <- 'DP1.00041.001'
 precipID  <- 'DP1.00006.001'
 timeIndex <- 1
 interval  <- '1_minute'
-savepath  <- '/out'
 ncores    <- detectCores()
 
 # -------------- function definitions --------------------------------------
