@@ -21,8 +21,7 @@ RUN apt-get update \
 # install R packages
 RUN R -e   "install.packages('BiocManager'); \
     install.packages('devtools'); \
-    install.packages('neonUtilities') \
-    # devtools::install_version('neonUtilities', '2.1.2') \
+    devtools::install_version('neonUtilities', '2.1.2'); \
     install.packages('raster'); \
     install.packages('rgdal')"
 

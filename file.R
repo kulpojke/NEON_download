@@ -25,7 +25,6 @@ soilTID   <- 'DP1.00041.001'
 precipID  <- 'DP1.00006.001'
 timeIndex <- 1
 interval  <- '1_minute'
-package   <- 'expanded'
 savepath  <- '/out'
 ncores    <- detectCores()
 
@@ -162,7 +161,7 @@ merge_dfs_list <- function(list_of_dfs) {
 # bag the eddy flux data from the API
 print('Downloading flux data.')
 print('---------------------------------------')
-zipsByProduct(dpID=fluxID, package=package, 
+zipsByProduct(dpID=fluxID, package='expanded', 
               site=site,
               startdate=startdate, enddate=enddate,
               savepath=savepath,
@@ -227,13 +226,13 @@ if (!dir.exists(soil_char_dir)) {
 
   print('Downloading initial soil characterization (DP1.10047.001)')
 
-  zipsByProduct(dpID='DP1.10047.001', package=package, 
+  zipsByProduct(dpID='DP1.10047.001', package='expanded', 
               site=site,
               startdate='2015-08', enddate='2021-06',
               savepath=soil_char_dir,
               check.size=F, token=api_token)    
 
-  zipsByProduct(dpID=soilH2OID, package=package, 
+  zipsByProduct(dpID=soilH2OID, package='expanded', 
               site=site,
               startdate='2015-08', enddate='2021-06',
               savepath=soil_char_dir,
