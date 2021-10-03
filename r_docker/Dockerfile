@@ -29,8 +29,10 @@ RUN R -e   "install.packages('BiocManager'); \
 WORKDIR /work
 COPY file.sh .
 COPY file.R .
-RUN  chmod 777 file.sh
-RUN  chmod 777 file.R
+
+# change permisions 
+WORKDIR /
+RUN  chmod 777 work
 
 
 ENTRYPOINT ["/file.sh"]
