@@ -6,6 +6,5 @@ ENDDATE=$3
 APITOKEN=$4
 
 # run the app
-Rscript file.R $SITE $STARTDATE $ENDDATE $APITOKEN
+Rscript file.R $SITE $STARTDATE $ENDDATE $APITOKEN /out
 
-chmod -R 766 /savepath
