@@ -8,4 +8,10 @@ RUN apt update \
 
 RUN pip3 install vaex
 
+COPY vice_csv2h5.sh /
+COPY csv2h5.py /
+
+WORKDIR /root/work
+
+ENTRYPOINT [ "vice_csv5h5.sh" ]
 
