@@ -30,8 +30,8 @@ COPY vice_file.sh /
 COPY file.R /
 
 # set permissions to avaiod problems
-RUN chnod 777 /vice_file.sh
-RUN chnod 777 /file.R
+RUN chmod 777 /vice_file.sh
+RUN chmod 777 / file.R
 
 # make data  
 WORKDIR /root/work
