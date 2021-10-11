@@ -23,7 +23,8 @@ RUN R -e   "install.packages('BiocManager'); \
     install.packages('devtools'); \
     devtools::install_version('neonUtilities', '2.1.2'); \
     install.packages('raster'); \
-    install.packages('rgdal')"
+    install.packages('rgdal'); \
+    install.packages('parallel')"
 
 # copy files
 COPY vice_file.sh /

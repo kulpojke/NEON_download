@@ -17,6 +17,7 @@ library(neonUtilities)
 library(raster)
 library(rgdal)
 library(dplyr)
+library(parallel)
 
 # product IDs  and global variables
 edyyID    <- 'DP4.00200.001'
