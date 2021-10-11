@@ -6,4 +6,4 @@ ENDDATE=$3
 APITOKEN=$4
 
 # run the app
-Rscript file.R $SITE $STARTDATE $ENDDATE $APITOKEN /root/work
+Rscript /file.R $SITE $STARTDATE $ENDDATE $APITOKEN /root/work
