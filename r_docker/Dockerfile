@@ -23,17 +23,19 @@ RUN R -e   "install.packages('BiocManager'); \
     install.packages('devtools'); \
     devtools::install_version('neonUtilities', '2.1.2'); \
     install.packages('raster'); \
-    install.packages('rgdal')"
+    install.packages('rgdal'); \
+    install.packages('parallel')"
 
-# make working directory and copy files
+# make working directory 
 WORKDIR /work
-COPY file.sh .
-COPY file.R .
+
+# copy files
+COPY file.sh /
+COPY file.R /
 
 # change permisions 
 WORKDIR /
-RUN  chmod 777 work
-
+RUN  chmod -R 777 /
 
 ENTRYPOINT ["/file.sh"]
 
