@@ -20,7 +20,7 @@ library(dplyr)
 library(parallel)
 
 # product IDs  and global variables
-edyyID    <- 'DP4.00200.001'
+fluxID    <- 'DP4.00200.001'
 soilCO2ID <- 'DP1.00095.001'
 soilH2OID <- 'DP1.00094.001'
 soilTID   <- 'DP1.00041.001'
