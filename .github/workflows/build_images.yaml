@@ -1,6 +1,6 @@
 name: Build & Deploy ubuntu-jupyter container
 on:
-  # Trigger this workflow when a PR is submitted 
+  # Trigger this workflow when a PR is submitted
   pull_request: []
   # Also trigger this workflow on any push to main.
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy-images:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
 
     # Define registry and repository
     env:
@@ -25,7 +25,7 @@ jobs:
       # A matrix of Dockerfile paths and associated tags
       # Dockerfile in root builds to tag latest
       matrix:
-        dockerfile: [[r_docker/Dockerfile, plain-sha], [r_docker_vice/Dockerfile, r-vice-sha]]]
+        dockerfile: [[r_docker/Dockerfile, -sha]]
     steps:
       - name: Get short SHA
         id: shorty
@@ -34,12 +34,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set Container Tag Normal 
+      - name: Set Container Tag Normal
         run: |
           container="${{ env.registry }}/${{ env.username}}/${{ env.repository }}:${{ matrix.dockerfile[1] }}${{ steps.shorty.outputs.sha7 }}"
           echo "container=${container}" >> $GITHUB_ENV
           echo "versioned=${container}" >> $GITHUB_ENV
-        
+
         # On a new release create a container with the same tag as the release.
       - name: Set Container Tag Release
         if: github.event_name == 'release'
@@ -62,7 +62,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ${{ env.registry }}
-          username: ${{ env.username }}+wrtc_robot 
+          username: ${{ env.username }}+wrtc_robot
           password: ${{ secrets.ROBOT_TOKEN }}
 
       - name: Deploy ${{ matrix.dockerfile[1] }}
