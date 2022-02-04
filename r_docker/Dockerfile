@@ -35,7 +35,8 @@ COPY stack_by_sensor.R /
 
 # change permisions
 WORKDIR /
-RUN  chmod -R 777 /
+RUN chmod -R 777 /stack_by_sensor.sh && \
+    chmod -R 777 /stack_by_sensor.R
 
 ENTRYPOINT ["/stack_by_sensor.sh"]
 
