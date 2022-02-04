@@ -21,7 +21,7 @@ RUN apt-get update \
 # install R packages
 RUN R -e "install.packages('BiocManager'); \
     install.packages('devtools'); \
-    install.package('neonUtilities'); \
+    install.packages('neonUtilities'); \
     install.packages('raster'); \
     install.packages('rgdal'); \
     install.packages('parallel')"
