@@ -1,4 +1,4 @@
-FROM rocker/r-base:4.1.0
+FROM rocker/r-base:4.1.2
 
 # install apt packages
 RUN apt-get update \
@@ -19,25 +19,25 @@ RUN apt-get update \
     libfftw3-dev
 
 # install R packages
-RUN R -e   "install.packages('BiocManager'); \
+RUN R -e "install.packages('BiocManager'); \
     install.packages('devtools'); \
-    devtools::install_version('neonUtilities', '2.1.2'); \
+    install.package('neonUtilities'); \
     install.packages('raster'); \
     install.packages('rgdal'); \
     install.packages('parallel')"
 
-# make working directory 
+# make working directory
 WORKDIR /work
 
 # copy files
-COPY file.sh /
-COPY file.R /
+COPY stack_by_sensor.sh /
+COPY stack_by_sensor.R /
 
-# change permisions 
+# change permisions
 WORKDIR /
 RUN  chmod -R 777 /
 
-ENTRYPOINT ["/file.sh"]
+ENTRYPOINT ["/stack_by_sensor.sh"]
 
 
 
