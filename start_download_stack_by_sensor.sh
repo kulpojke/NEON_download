@@ -17,6 +17,6 @@ STARTDATE=$3
 ENDDATE=$4
 APITOKEN=$5
 
-docker run --rm -it -v $SAVEPATH:/out --user $(id -u):$(id -g) quay.io/kulpojke/neon-timeseries:ts_construct-0d0154b $SITE $STARTDATE $ENDDATE $APITOKEN
+docker run --rm -it -v $SAVEPATH:/out --user $(id -u):$(id -g) quay.io/kulpojke/neon-timeseries:sha5d2bb81 $SITE $STARTDATE $ENDDATE $APITOKEN
 
-# ./start_download.sh /media/data/Downloads/neon SOAP 2020-01 2020-07 $TOKEN
+# ./start_download_stack_by_sensor.sh /home/michael/data/ABBY ABBY 2020-01 2020-07 $TOKEN

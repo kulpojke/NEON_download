@@ -24,7 +24,8 @@ RUN R -e "install.packages('BiocManager'); \
     install.packages('neonUtilities'); \
     install.packages('raster'); \
     install.packages('rgdal'); \
-    install.packages('parallel')"
+    install.packages('parallel'); \
+    BiocManager::install('rhdf5')"
 
 # make working directory
 WORKDIR /work

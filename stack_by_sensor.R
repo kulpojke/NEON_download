@@ -34,17 +34,20 @@ ncores    <- detectCores()
 sep_vertical <- function(sensor_data) {
   #' function to seperate sensor data into a list of dfs by verticalPosition
   #' @param sensor_data -- the sensor data as returned by neonUtilities::loadByProduct()
-  
+
   # find the index of the  data coresponding to the time interval
   idx <- which(grepl(interval, names(sensor_data)), arr.ind=TRUE)
   # now get the data using the index
   df <- sensor_data[[idx]]
   if ("finalQF" %in% names(df)) {
-    df <- rename_with(df, .fn = ~paste0( ., sufx), .cols = finalQF)
-  } # this line is an exmaple of R making the simplist task unreadable and confusing
 
-  # remane the finalQF file to by uunambigous after merge
-  sufx <- unlist(strsplit(names(sensor_data)[[idx]], '_'))[[1]]
+    # get suffix finalQF file to be unambigous after merge
+    sufx <- unlist(strsplit(names(sensor_data)[[idx]], '_'))[[1]]
+
+    # rename the QF cols
+    # this line is an exmaple of R making the simplest task unreadable and confusing
+    df <- rename_with(df, .fn = ~paste0( ., sufx), .cols = finalQF)
+  }
 
   # get the positions
   positions <- unique(df[c("verticalPosition")])[[1]]
@@ -74,7 +77,7 @@ sep_vertical <- function(sensor_data) {
 sep_horizontal <- function(list_of_dfs) {
   #' function to seperate each df in a list of dfs by horizontalPosition
   #' @param list_of_dfs -- the list of dfs
-  
+
   # make an empty list
   df_list <- c()
   # seperate data by horizontalPosition for each df in list_of_dfs
@@ -96,8 +99,8 @@ sep_horizontal <- function(list_of_dfs) {
 
 precip_prune <- function(precip_data) {
   #' function to select only the desired columns from the precip table
-  
-  # find the index of the interval appropriate data, prefer SECPRE but fall back 
+
+  # find the index of the interval appropriate data, prefer SECPRE but fall back
   # to PRIPRE (bc KNOWN ISSUE 2020-06-10). keep track of which with pri_sec
   if (timeIndex == 30) {
     sufx = '_30min'
@@ -109,7 +112,7 @@ precip_prune <- function(precip_data) {
     idx <- which(grepl(paste0('PRIPRE', sufx), names(precip_data)), arr.ind=TRUE)
     pri_sec <- 1
   }
-  
+
   # now get the data using the index
   df <- precip_data[[idx]]
   print(class(df))
@@ -120,7 +123,7 @@ precip_prune <- function(precip_data) {
   if (unique(df["horizontalPosition"]) > 1){
     print(paste0('Warning there is ore than one verital position for sensors at ', site))
   }
-  
+
   # neaten the df before returnng it
   if (pri_sec ==2){
     # select the desired rows
@@ -129,18 +132,18 @@ precip_prune <- function(precip_data) {
     # select the desired rows
     df <- df %>% select(startDateTime, priPrecipBulk, priPrecipExpUncert, priPrecipRangeQF, priPrecipSciRvwQF)
   }
-  
+
   # change startDateTime to timeBgn for consistency with flux
   df$timeBgn <- df$startDateTime
   df <- select(df, -startDateTime)
-  
+
   return(df)
 }
 
 
 merge_dfs_list <- function(list_of_dfs) {
   #' Function to merge a list of dfs. Tags column names with sensor
-  #' position taken from names(list_of_dfs). 
+  #' position taken from names(list_of_dfs).
   #' @param list_of_dfs -- the list of dfs
   for (i in 1:length(list_of_dfs)) {
     loc <- names(list_of_dfs)[[i]]
@@ -152,7 +155,7 @@ merge_dfs_list <- function(list_of_dfs) {
       df <- df %>% rename_with(~ paste(.x, loc, sep="_"), -timeBgn)
       data <- inner_join(data, df, by="timeBgn")
     }
-  } 
+  }
   return(data)
 }
 
@@ -162,7 +165,7 @@ merge_dfs_list <- function(list_of_dfs) {
 # bag the eddy flux data from the API
 print('Downloading flux data.')
 print('---------------------------------------')
-zipsByProduct(dpID=fluxID, package='expanded', 
+zipsByProduct(dpID=fluxID, package='expanded',
               site=site,
               startdate=startdate, enddate=enddate,
               savepath=savepath,
@@ -182,7 +185,7 @@ flux <- flux[[1]]
 flux <- flux %>% select(timeBgn,
                         data.fluxCo2.nsae.flux,
                         qfqm.fluxCo2.nsae.qfFinl,
-                        data.fluxTemp.nsae.flux, 
+                        data.fluxTemp.nsae.flux,
                         qfqm.fluxTemp.nsae.qfFinl,
                         data.fluxH2o.nsae.flux,
                         qfqm.fluxH2o.nsae.qfFinl)
@@ -227,13 +230,13 @@ if (!dir.exists(soil_char_dir)) {
 
   print('Downloading initial soil characterization (DP1.10047.001)')
 
-  zipsByProduct(dpID='DP1.10047.001', package='expanded', 
+  zipsByProduct(dpID='DP1.10047.001', package='expanded',
               site=site,
               startdate='2015-08', enddate='2021-06',
               savepath=soil_char_dir,
-              check.size=F, token=api_token)    
+              check.size=F, token=api_token)
 
-  zipsByProduct(dpID=soilH2OID, package='expanded', 
+  zipsByProduct(dpID=soilH2OID, package='expanded',
               site=site,
               startdate='2015-08', enddate='2021-06',
               savepath=soil_char_dir,
@@ -244,15 +247,15 @@ if (!dir.exists(soil_char_dir)) {
 #------------ soilCO2 ------------------------
 # download the soilCO2 product
 print('------------ soilCO2 ------------------------')
-soilCO2 <- loadByProduct(soilCO2ID, site=site, 
-                         timeIndex=timeIndex, package="basic", 
+soilCO2 <- loadByProduct(soilCO2ID, site=site,
+                         timeIndex=timeIndex, package="basic",
                          startdate=startdate, enddate=enddate,
                          check.size=F, nCores=ncores, token=api_token)
 
 # seperate data by verticalPosition for soilCO2
 soilCO2 <- sep_vertical(soilCO2)
 
-# seperate soilCO2 by horizontalPosition  
+# seperate soilCO2 by horizontalPosition
 soilCO2 <- sep_horizontal(soilCO2)
 
 # garbage collect, just in case
@@ -261,15 +264,15 @@ gc()
 #------------ soilH2O ------------------------
 print('------------ soilH2O ------------------------')
 # download the soilH2O product
-soilH2O <- loadByProduct(soilH2OID, site=site, 
-                         timeIndex=timeIndex, package="basic", 
+soilH2O <- loadByProduct(soilH2OID, site=site,
+                         timeIndex=timeIndex, package="basic",
                          startdate=startdate, enddate=enddate,
                          check.size=F, nCores=ncores, token=api_token)
 
-# seperate data by verticalPosition for soilH2O 
+# seperate data by verticalPosition for soilH2O
 soilH2O <- sep_vertical(soilH2O)
 
-# seperate soilH2O by horizontalPosition  
+# seperate soilH2O by horizontalPosition
 soilH2O <- sep_horizontal(soilH2O)
 
 # garbage collect, just in case
@@ -278,15 +281,15 @@ gc()
 #------------- soilT -------------------------
 print('------------- soilT -------------------------')
 # download the soilT product
-soilT <- loadByProduct(soilTID, site=site, 
-                       timeIndex=timeIndex, package="basic", 
+soilT <- loadByProduct(soilTID, site=site,
+                       timeIndex=timeIndex, package="basic",
                        startdate=startdate, enddate=enddate,
                        check.size=F, nCores=ncores, token=api_token)
 
 # seperate data by verticalPosition for soilT
 soilT <- sep_vertical(soilT)
 
-# seperate soilT by horizontalPosition  
+# seperate soilT by horizontalPosition
 soilT <- sep_horizontal(soilT)
 
 # garbage collect, just in case
@@ -294,13 +297,13 @@ gc()
 
 #------------- precip ------------------------
 # download the precip product
-precip <- loadByProduct(precipID, site=site, 
-                        timeIndex=timeIndex, package="basic", 
+precip <- loadByProduct(precipID, site=site,
+                        timeIndex=timeIndex, package="basic",
                         startdate=startdate, enddate=enddate,
                         check.size=F, nCores=ncores, token=api_token)
 
 # select the needed columns
-precip <- precip_prune(precip)                 
+precip <- precip_prune(precip)
 
 #------------- merge -------------------------
 # merge each list of dfs containing data from different sensor types
@@ -309,7 +312,7 @@ soilH2O <- merge_dfs_list(soilH2O)
 soilT   <- merge_dfs_list(soilT)
 
 # merge them all into a big soil df
-soil <- soilCO2 %>% 
+soil <- soilCO2 %>%
   inner_join(soilH2O, by='timeBgn') %>%
   inner_join(soilT, by='timeBgn')
 
