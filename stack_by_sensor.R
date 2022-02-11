@@ -102,9 +102,13 @@ precip_prune <- function(precip_data) {
 
   # find the index of the interval appropriate data, prefer SECPRE but fall back
   # to PRIPRE (bc KNOWN ISSUE 2020-06-10). keep track of which with pri_sec
+  print('in precip_prune')
+
   if (timeIndex == 30) {
     sufx = '_30min'
-  } else { suxf = '_1min'}
+  } else { sufx = '_1min'}
+
+  print(paste('sufx :', sufx))
 
   idx <- which(grepl(paste0('SECPRE', sufx), names(precip_data)), arr.ind=TRUE)
   pri_sec <- 2
@@ -242,6 +246,8 @@ if (!dir.exists(soil_char_dir)) {
               savepath=soil_char_dir,
               check.size=F, token=api_token)
 
+} else {
+  print('Initial soil characterization (DP1.10047.001) is already present.')
 }
 
 #------------ soilCO2 ------------------------
@@ -296,6 +302,7 @@ soilT <- sep_horizontal(soilT)
 gc()
 
 #------------- precip ------------------------
+print('------------- precip -------------------------')
 # download the precip product
 precip <- loadByProduct(precipID, site=site,
                         timeIndex=timeIndex, package="basic",
@@ -306,6 +313,7 @@ precip <- loadByProduct(precipID, site=site,
 precip <- precip_prune(precip)
 
 #------------- merge -------------------------
+print('------------- merge -------------------------')
 # merge each list of dfs containing data from different sensor types
 soilCO2 <- merge_dfs_list(soilCO2)
 soilH2O <- merge_dfs_list(soilH2O)
