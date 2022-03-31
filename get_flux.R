@@ -5,8 +5,8 @@
 # Rscript get_flux.R ABBY '2020-07' '2020-07' $TOKEN /data/NEON/ABBY
 
 # test args
-# site      <- 'TALL'
-# startdate <- '2021-06'
+# site      <- 'TEAK'
+# startdate <- '2019-06'
 # enddate   <- '2021-07'
 # api_token <-
 # savepath  <- paste0('/data/', site)
@@ -82,7 +82,7 @@ print('Getting tower footprints...')
 footprint <- footRaster(filepath=filepath)
 
 # create dir for footprints
-foot_path <- file.path(savepath, paste0(site, '_footprints'))
+foot_path <- file.path(savepath, 'footprints')
 
 dir.create(foot_path, recursive=TRUE, showWarnings=FALSE)
 
@@ -94,10 +94,10 @@ for (lyr in footprint@layers) {
     # make filename
     fname <- paste(foot_path, tail(strsplit(names(lyr), "\\.")[[1]], n=1), sep="/")
     fname <- paste0(fname, ".tiff")
-    
+
     # change all negatives to -9999 (no data)
     ras <- reclassify(lyr, cbind(-Inf, 0, -9999), right=FALSE)
-    
+
     # write tiff
     print(paste0('    ... writing ', fname))
     writeRaster(ras, filename=fname, overwrite = TRUE)
@@ -155,14 +155,14 @@ p <- paste(savepath, "hyperspectral", sep='/')
 dir.create(p, recursive=TRUE, showWarnings=FALSE)
 
 # download hyperspectral for each year
-for (y in years) { 
+for (y in years) {
   R_is_dumb <- tryCatch(
-    byTileAOP(dpID = "DP3.30006.001", 
+    byTileAOP(dpID = "DP3.30006.001",
               site = site,
-              year = y, 
-              check.size = FALSE, 
+              year = y,
+              check.size = FALSE,
               easting = easting,
-              northing = northing, 
+              northing = northing,
               savepath = p,
               token = api_token),
     warning = function(cond) {
@@ -175,7 +175,7 @@ for (y in years) {
       message(paste("Hyperspectral data saved to ", p))
     }
   )
-    
+
 }
 
 #h5_paths <- Sys.glob(file.path("/data",
@@ -194,7 +194,7 @@ for (y in years) {
 #for (f in h5_paths) {
 #  wl <- paste0("/", site, "/Reflectance/Metadata/Spectral_Data/Wavelength")
 #  wl <- h5read(f, wl)
-#  
+#
 #  refl_info <- paste0("/", site, "/Reflectance/Reflectance_Data")
 #  refl_info <- h5read(f, refl_info)
 #}
