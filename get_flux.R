@@ -19,12 +19,16 @@ enddate   <- args[3]
 api_token <- args[4]
 savepath  <- args[5]
 
+# print a message
+print(paste0('Files will be saved internally to ', savepath))
+print('---------------------------------------')
+
+
 # we'll need these
 library(neonUtilities)
 library(raster)
 library(rgdal)
 library(dplyr)
-library(parallel)
 library(rhdf5)
 
 # do this weird R thing
@@ -35,13 +39,6 @@ dir.create(savepath, recursive=TRUE, showWarnings=FALSE)
 
 # product IDs  and global variables
 fluxID    <- 'DP4.00200.001'
-soilCO2ID <- 'DP1.00095.001'
-soilH2OID <- 'DP1.00094.001'
-soilTID   <- 'DP1.00041.001'
-precipID  <- 'DP1.00006.001'
-timeIndex <- 1
-interval  <- '1_minute'
-ncores    <- detectCores()
 
 #-------------- flux -------------------------
 # bag the eddy flux data from the API
@@ -76,6 +73,7 @@ flux <- flux %>% select(timeBgn,
 # garbage collect, just in case
 gc()
 
+
 #-------------- footprint -------------------
 # get the tower footprint
 print('Getting tower footprints...')
@@ -89,19 +87,18 @@ dir.create(foot_path, recursive=TRUE, showWarnings=FALSE)
 # Iterate through the raster layers saving tifs
 i <- 1
 for (lyr in footprint@layers) {
-  # There are too many, drop to h resolution (every other)
-  if (i %% 2 == 0) {
-    # make filename
-    fname <- paste(foot_path, tail(strsplit(names(lyr), "\\.")[[1]], n=1), sep="/")
-    fname <- paste0(fname, ".tiff")
 
-    # change all negatives to -9999 (no data)
-    ras <- reclassify(lyr, cbind(-Inf, 0, -9999), right=FALSE)
+  # make filename
+  fname <- paste(foot_path, tail(strsplit(names(lyr), "\\.")[[1]], n=1), sep="/")
+  fname <- paste0(fname, ".tiff")
 
-    # write tiff
-    print(paste0('    ... writing ', fname))
-    writeRaster(ras, filename=fname, overwrite = TRUE)
-    }
+  # change all negatives to -9999 (no data)
+  ras <- reclassify(lyr, cbind(-Inf, 0, -9999), right=FALSE)
+
+  # write tiff
+  print(paste0('    ... writing ', fname))
+  writeRaster(ras, filename=fname, overwrite = TRUE)
+
   i <- i + 1
   }
 
@@ -111,6 +108,9 @@ fname <- paste(foot_path, "summary.tiff", sep="/")
 print(paste0('    ... writing ', fname))
 ras <- reclassify(footsum, cbind(-Inf, 0, -9999), right=FALSE)
 writeRaster(ras, filename=fname, overwrite = TRUE)
+
+# garbage collect, just in case
+gc()
 
 
 # -------------- hyperspectral ---------------
@@ -177,28 +177,5 @@ for (y in years) {
   )
 
 }
-
-#h5_paths <- Sys.glob(file.path("/data",
-#                               site,
-#                               "hyperspectral",
-#                               "DP3.30006.001",
-#                               y,
-#                               "FullSite",
-#                               "D*",
-#                               "2021_TALL_6",
-#                               "L3",
-#                               "Spectrometer",
-#                               "Reflectance",
-#                               "*.h5"))
-#
-#for (f in h5_paths) {
-#  wl <- paste0("/", site, "/Reflectance/Metadata/Spectral_Data/Wavelength")
-#  wl <- h5read(f, wl)
-#
-#  refl_info <- paste0("/", site, "/Reflectance/Reflectance_Data")
-#  refl_info <- h5read(f, refl_info)
-#}
-
-
 
 print('Download of flux data complete!')
