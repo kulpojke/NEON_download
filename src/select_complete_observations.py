@@ -5,15 +5,19 @@ Intended to be used on data from a single year.
 Writes valid observations to a csv called
 `SITE/flux_observations/flux_observations_YYYY.csv`
 where YYYY is the year.
+
+usage:
+python src/select_complete_observations.py --site=TALL --file_path=TALL/filesToStack00200/
+
+or in container:
+docker run -ti --rm -v "$PWD":/home/docker -w /home/docker --user $(id -u):$(id -g) quay.io/kulpojke/neon-timeseries:py-shadd689ac python src/select_complete_observations.py --site=TALL --file_path=/home/docker/TALL/filesToStack00200/
 '''
 
-import h5py
 import os
 import pandas as pd
-import numpy as np
-from tqdm import tqdm
 pd.options.mode.chained_assignment = None
 import argparse
+from tqdm import tqdm
 
 
 def parse_arguments():
@@ -66,7 +70,8 @@ def get_valid_observations(site, file_path):
             if ('.h5' in f)
             ]
 
-    for f in files:
+
+    for f in tqdm(files):
 
         # get the day
         day = pd.to_datetime(f.split('nsae.')[1].split('.')[0]).date()
@@ -139,11 +144,19 @@ if __name__ == '__main__':
     results = os.path.join(parent, 'flux_observations')
     os.makedirs(results, exist_ok=True)
 
+    # print feedback
+    print()
+    print('Finding valid observations ...')
+
     # get the valid observations
     df = get_valid_observations(args.site, args.file_path)
 
     # get year of observations
     year = pd.to_datetime(df.timeBgn).min().year
+
+    # print feedback
+    print()
+    print(f'Found {len(df)} valid observations for {args.site}-{year}.')
 
     # write observations to csv within results dir
     csv_path = os.path.join(results, f'flux_observations_{year}.csv')
