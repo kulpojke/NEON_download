@@ -25,7 +25,7 @@ jobs:
       # A matrix of Dockerfile paths and associated tags
       # Dockerfile in root builds to tag latest
       matrix:
-        dockerfile: [[r_docker/Dockerfile, r-sha]]
+        dockerfile: [[r_docker/Dockerfile, r-sha], [py_docker/Dockerfile, py-sha]]
     steps:
       - name: Get short SHA
         id: shorty
