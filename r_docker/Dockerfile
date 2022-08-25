@@ -9,11 +9,3 @@ RUN R -e "install.packages('devtools'); \
 
 # make working directory
 WORKDIR /work
-
-
-
-
-
-
-
-

@@ -16,10 +16,14 @@ args = commandArgs(trailingOnly=TRUE)
 site      <- args[1]
 startdate <- args[2]
 enddate   <- args[3]
-api_token <- args[4]
-savepath  <- args[5]
+savepath  <- args[4]
+api_token <- args[5]
+
 
 # print a message
+print('---------------------------------------')
+print(paste0('This will download files for ', site))
+print(paste0('for the months ', startdate, ' through ', enddate))
 print(paste0('Files will be saved internally to ', savepath))
 print('---------------------------------------')
 
@@ -114,6 +118,7 @@ gc()
 
 
 # -------------- hyperspectral ---------------
+print('Checking for hyperspectral imagery.')
 
 # extract the extent of the footprint rasters
 e <- extent(footsum)

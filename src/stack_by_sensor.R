@@ -6,8 +6,8 @@ args = commandArgs(trailingOnly=TRUE)
 site      <- args[1]
 startdate <- args[2]
 enddate   <- args[3]
-api_token <- args[4]
-savepath  <- args[5]
+savepath  <- args[4]
+api_token <- args[5]
 
 # do this wierd R thing
 options(stringsAsFactors=F)
@@ -26,7 +26,7 @@ soilH2OID <- 'DP1.00094.001'
 soilTID   <- 'DP1.00041.001'
 precipID  <- 'DP1.00006.001'
 timeIndex <- 1
-interval  <- '1_minute'
+interval  <- paste0(timeIndex, '_minute')
 ncores    <- detectCores()
 
 # -------------- function definitions --------------------------------------
@@ -165,86 +165,31 @@ merge_dfs_list <- function(list_of_dfs) {
 
 # --------end of function definitions --------------------------------------
 
-#-------------- flux -------------------------
-# bag the eddy flux data from the API
-print('Downloading flux data.')
-print('---------------------------------------')
-zipsByProduct(dpID=fluxID, package='expanded',
-              site=site,
-              startdate=startdate, enddate=enddate,
-              savepath=savepath,
-              check.size=F, token=api_token)
-
-# extract the level 4 data
-print('Extracting flux data.')
-print('---------------------------------------')
-filepath <- file.path(savepath, 'filesToStack00200')
-flux <- stackEddy(filepath=filepath,
-                  level="dp04")
-
-# get just the dataframe
-flux <- flux[[1]]
-
-# extract the columns of interest from the flux data
-flux <- flux %>% select(timeBgn,
-                        data.fluxCo2.nsae.flux,
-                        qfqm.fluxCo2.nsae.qfFinl,
-                        data.fluxTemp.nsae.flux,
-                        qfqm.fluxTemp.nsae.qfFinl,
-                        data.fluxH2o.nsae.flux,
-                        qfqm.fluxH2o.nsae.qfFinl)
-
-# garbage collect, just in case
-gc()
-
-#-------------- footprint -------------------
-# get the tower footprint
-print('Getting tower footprint...')
-footprint <- footRaster(filepath=filepath)
-
-# create dir for footprints
-foot_path <- file.path(savepath, paste0(site, '_footprints'))
-
-if (!dir.exists(foot_path)) {
-  dir.create(foot_path)
-}
-# save the summary layer ( [[1]] ) of the footprint
-footsum <- footprint[[1]]
-footsum <- reclassify(footsum, cbind(-Inf, 0, -9999), right=FALSE)
-
-fname <- file.path(foot_path, paste(site, startdate, 'footprint.tif', sep='_'))
-
-print(paste0('    ... saving tower footprint of dimension', dim(footsum), ' ...'))
-writeRaster(footsum, filename=fname, overwrite = TRUE)
-
-print(paste0('    ... footprint written as ', fname))
-
-# remove rasters /stacks to free memory
-rm(footsum)
-rm(footprint)
-gc()
 
 #-----initial soil characterization ----------
 # get initial soil characterization (DP1.10047.001) if it is not already there
 # also put the soil volumatric water content zip in there to get sensor_positions
-soil_char_dir <-file.path(savepath, paste0(site, '_DP1.10047.001'))
+soil_char_dir <-file.path(savepath, 'filesToStack10047')
 
 if (!dir.exists(soil_char_dir)) {
-  dir.create(soil_char_dir)
-
+  
   print('Downloading initial soil characterization (DP1.10047.001)')
 
   zipsByProduct(dpID='DP1.10047.001', package='expanded',
               site=site,
               startdate='2015-08', enddate='2021-06',
-              savepath=soil_char_dir,
+              savepath=savepath,
               check.size=F, token=api_token)
 
-  zipsByProduct(dpID=soilH2OID, package='expanded',
-              site=site,
-              startdate='2015-08', enddate='2021-06',
-              savepath=soil_char_dir,
-              check.size=F, token=api_token)
+  # due to incorect sensor locations look at
+  # readmeswcdepths.txt and 
+  # swc_depths.csv which should be included
+
+  #zipsByProduct(dpID=soilH2OID, package='expanded',
+  #            site=site,
+  #            startdate='2015-08', enddate='2015-08',
+  #            savepath=savepath,
+  #            check.size=F, token=api_token)
 
 } else {
   print('Initial soil characterization (DP1.10047.001) is already present.')
@@ -330,13 +275,12 @@ rm(soilH2O)
 rm(soilT)
 gc()
 
-# merge soil with the flux data
-data <- flux %>% inner_join(soil, by='timeBgn')
+
 # merge precip with the soil and flux data
-data <- data %>% inner_join(precip, by='timeBgn')
+data <- soil %>% inner_join(precip, by='timeBgn')
 
 # make a filename
-fname <- paste(savepath, paste0(site, '_', startdate, '.csv'), sep = "/")
+fname <- paste(savepath, paste0(site, '_', startdate, '_', enddate, '.csv'), sep = "/")
 
 # write to csv
 write.csv(data, fname)
